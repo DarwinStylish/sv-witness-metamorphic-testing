@@ -1,0 +1,19 @@
+version = 1
+
+[[annotations]]
+path = [
+    ".editorconfig",
+    ".gitignore",
+    ".github/**",
+    "CITATION.cff",
+    "CONTRIBUTING.md",
+    "README.md",
+    "SECURITY.md",
+    "docs/**",
+    "pyproject.toml",
+    "src/**",
+    "tests/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Okot Darwin Clay"
+SPDX-License-Identifier = "Apache-2.0"
