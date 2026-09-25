@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "SV-Witness Metamorphic Testing"
+authors:
+  - family-names: "Okot"
+    given-names: "Darwin Clay"
+version: "0.1.0.dev0"
+license: "Apache-2.0"
