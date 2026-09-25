@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible problem
+title: ""
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem.
+
+        Do not include sensitive security details in a public issue. See SECURITY.md
+        for private reporting guidance.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the problem clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest practical sequence that reproduces the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What result did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include relevant operating system, Python version, commit, and tool versions.
+      placeholder: |
+        OS:
+        Python:
+        Commit:
+        Other tools:
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add logs, minimal inputs, or other useful context.
+    validations:
+      required: false
