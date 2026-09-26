@@ -121,7 +121,7 @@ The first stage does not aim to:
 
 ## Success Criteria
 
-The approach is useful if the project can:
+The approach meets the initial success criteria if the project can:
 
 - find non-trivial witness transformations whose semantic relationships can be
   justified within the supported semantic profile;
@@ -130,14 +130,14 @@ The approach is useful if the project can:
 - use the resulting relations to build reproducible checks over real validator
   runs.
 
-The project does not need to find a validator defect to succeed.
+Success does not depend on finding a validator defect.
 
 If the tested validators satisfy the generated relations, that result can still
 tell us something about the method and the scope that was tested.
 
 ## Failure Criteria
 
-The approach may not be useful if:
+The approach does not meet the initial success criteria if:
 
 - useful transformation relationships cannot be justified without relying on
   the validator being tested;
@@ -146,21 +146,20 @@ The approach may not be useful if:
 - the resulting relationships do not place useful constraints on validator
   results.
 
-Negative results are still part of the study. If the scope changes later, those
-changes should be kept separate from results produced under the earlier scope.
+Negative results are still part of the study. Results remain tied to the scope
+under which they were produced.
 
 ## Open Questions
 
-The next research stages need to answer:
+The next research stages address:
 
-- What semantic condition should mean that a violation witness is successfully
-  confirmed?
-- Which SV-Witness 2.2 features should be included in the first semantic
-  profile?
+- What semantic condition defines successful confirmation of a violation
+  witness?
+- Which SV-Witness 2.2 features form the first semantic profile?
 - Which witness transformations preserve, broaden, or narrow the executions
   represented by a witness?
-- What evidence is needed to justify each transformation?
-- How should validator-specific results be normalized without losing important
+- What evidence justifies each transformation?
+- How can validator-specific results be normalized without losing important
   differences?
 - Which validator and witness-format versions can be compared without assuming
   that different versions have the same semantics?
