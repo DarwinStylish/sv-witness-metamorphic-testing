@@ -13,12 +13,12 @@ separately.
 
 ## Research Question
 
-Can we transform SV-Witness violation witnesses in ways that let us predict
-relationships between validator results from the supported witness semantics
-alone?
+Can we transform SV-Witness violation witnesses in ways that give known
+semantic relationships between the original and transformed witnesses, and use
+those relationships to test witness validators?
 
-The method should not depend on treating one validator as ground truth or on
-agreement between several validators.
+The method does not treat one validator as ground truth or depend on agreement
+between several validators.
 
 ## Research Object
 
@@ -37,12 +37,16 @@ The verification task contains:
 A witness transformation changes the witness but keeps the verification task
 fixed.
 
-The project studies transformations whose expected relationship between the
+The project studies transformations whose semantic relationship between the
 original and transformed witnesses can be justified without relying on the
 validator being tested.
 
-The validator can then be run on both witnesses. The expected relationship
-between the two results can be used as a metamorphic oracle.
+The validator can then be run on both witnesses. Its results can be compared
+with the semantic relationship between the witnesses.
+
+A difference between the validator results does not by itself prove that the
+validator is wrong. It may also come from incomplete analysis, unsupported
+features, resource limits, or other validator behavior.
 
 ## Initial Scope
 
@@ -79,11 +83,11 @@ preserving, broadening, or narrowing what the original witness represents.
 
 The project asks whether these relationships can be derived from the supported
 SV-Witness semantics, implemented as controlled transformations, and used to
-check validator behavior.
+test validator behavior.
 
-A disagreement between validators is not automatically a defect. Any reported
-inconsistency must be checked against the expected semantic relationship between
-the related witnesses.
+A difference between the results for related witnesses is not automatically a
+defect. Its interpretation depends on the semantic relationship between the
+witnesses and on how each validator run ended.
 
 ## Approach Under Study
 
@@ -93,9 +97,9 @@ SV-Witness violation-witness validators.
 The method starts with a seed witness-validation case. It then:
 
 1. creates a related witness;
-2. records the expected semantic relationship between the two witnesses;
+2. records the semantic relationship between the two witnesses;
 3. runs the validator on both witnesses; and
-4. checks whether the validator results satisfy that relationship.
+4. compares the validator results with that relationship.
 
 Whether this method adds useful testing capability beyond existing
 witness-validation methods is still a research question. The prior-art review
@@ -119,7 +123,7 @@ The first stage does not aim to:
 
 The approach is useful if the project can:
 
-- find non-trivial witness transformations whose expected relationships can be
+- find non-trivial witness transformations whose semantic relationships can be
   justified within the supported semantic profile;
 - implement those transformations without changing their intended
   relationships; and
@@ -137,7 +141,7 @@ The approach may not be useful if:
 
 - useful transformation relationships cannot be justified without relying on
   the validator being tested;
-- establishing the expected relationship requires running full verification
+- establishing the semantic relationship requires running full verification
   again; or
 - the resulting relationships do not place useful constraints on validator
   results.
