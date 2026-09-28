@@ -69,9 +69,10 @@ task:
 - `language` is `C`; and
 - `data_model` contributes to $M$.
 
-The witness `format_version` is `2.2`. Producer identity, creation time, UUID,
-and other provenance metadata do not change the verification task represented
-by $\tau$.
+The `format_version` selects the witness-format version and is `2.2` in this
+profile. The `uuid`, `creation_time`, and `producer` fields describe the witness
+entry and its provenance. Within this project, the components of $\tau$ are
+taken from the `task` fields above rather than from those provenance fields. [4]
 
 ## Program Executions
 
@@ -229,7 +230,9 @@ This specializes the SV-Witness 2.2 normal-segment definition to the restricted
 single-follow sequential profile. [1]
 
 Because the segment contains exactly one follow waypoint, that waypoint
-determines the end of the matching execution part.
+determines the end of the matching execution part. For each matched normal
+segment, its unique follow assumption is therefore passed at the end of that
+part. The next segment then becomes current. [1]
 
 ## Matching a Final Segment
 
@@ -246,7 +249,9 @@ This is the restricted `unreach-call` form of the SV-Witness 2.2 final-segment
 semantics. [1]
 
 Matching a final segment does not require the program execution to terminate
-immediately after the violation. [1]
+immediately after the violation. Accordingly, the final execution part may
+extend beyond the violating evaluation; it is not required to end at the
+violation. [1]
 
 ## Violation-Sequence Matching
 
