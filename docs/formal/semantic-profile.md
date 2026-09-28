@@ -1,0 +1,353 @@
+# Semantic Profile: SV-Witness 2.2 Violation Witnesses
+
+## Status
+
+This document defines the initial semantic profile used by SV-Witness
+Metamorphic Testing.
+
+The profile is intentionally narrower than SV-Witness 2.2. It identifies the
+subset whose semantics the project uses when reasoning about related violation
+witnesses for a fixed verification task.
+
+This document does not define a new witness format, a validator, or a
+replacement for the SV-Witness specification.
+
+## Normative Source
+
+The semantic reference is SV-Witness version 2.2, release tag `2.2`, at commit
+`7ccb2c3240d1501c2b24cbcbcc20530fac3d4637`.
+
+The Software Witness Guide defines witness-format semantics and validity. The
+violation-witness schema defines structural constraints used together with that
+guide. [1] [2]
+
+Version 2.2 also added concurrent violation-witness features, including
+`thread_id` and multi-follow segments. Those features are part of SV-Witness
+2.2 but are outside this initial project profile except for the main-thread
+meaning of an absent or zero `thread_id`. [1] [3]
+
+If this document conflicts with the cited SV-Witness 2.2 sources, the upstream
+2.2 sources take precedence.
+
+## Verification Task
+
+The project models a fixed verification task as
+
+$$
+\tau = (P, \varphi, M)
+$$
+
+where:
+
+- $P$ is the program given by the task's original input files;
+- $\varphi$ is the checked property; and
+- $M$ contains the execution and machine-model assumptions needed to interpret
+  the task.
+
+For this profile, $\varphi$ is the `unreach-call` reachability-safety property.
+
+The exact input files belong to the task. SV-Witness 2.2 locations refer to the
+original `input_files` as supplied to the verifier, not to preprocessed or
+instrumented source. [1]
+
+A witness is not part of $\tau$.
+
+A witness transformation changes $W$ while keeping $\tau$ fixed.
+
+## Program Executions
+
+Let
+
+$$
+\operatorname{Exec}(\tau)
+$$
+
+denote the feasible sequential executions of $P$ under $\varphi$ and $M$ for
+the purpose of interpreting the task.
+
+This profile uses **executions** as its semantic carrier. It does not introduce
+a separate path, trace, or execution-prefix semantics.
+
+Program control flow does not need to be acyclic. An execution may revisit a
+program location. The profile excludes cycle segments because it covers the
+finite safety-witness form used for `unreach-call`, not because program
+executions are required to be acyclic.
+
+## Supported Witness Subset
+
+A witness is within the initial profile only when all of the following hold:
+
+- it uses SV-Witness version 2.2;
+- it is a YAML violation witness with one `violation_sequence` entry;
+- the verification task is sequential C;
+- the checked property is `unreach-call`;
+- every normal segment is a follow segment;
+- there is exactly one final segment;
+- the final segment is the last segment;
+- only `assumption` and `target` waypoint types are used;
+- only `follow` and `avoid` waypoint actions are used;
+- `thread_id` is either absent or `0`.
+
+The following are outside the initial profile:
+
+- concurrent executions;
+- `thread_id` values greater than `0`;
+- multi-follow segments;
+- cycle segments;
+- termination witnesses;
+- `no-data-race`, `no-overflow`, and memory-safety properties;
+- correctness witnesses;
+- GraphML witnesses;
+- `function_enter`, `function_return`, and `branching` waypoints.
+
+These exclusions are project restrictions, not statements that SV-Witness 2.2
+itself excludes those features.
+
+## Locations
+
+A waypoint location refers to a physical position in one of the task's original
+input files. The line is part of that location, and the column may be omitted.
+When the column is omitted, SV-Witness 2.2 resolves the first syntactically
+matching column according to the waypoint type. [1]
+
+The optional `function` location field is retained when present. This profile
+makes no claim that adding, removing, or rewriting that field preserves witness
+meaning.
+
+A location that is inconsistent with the input program is invalid according to
+the witness format. [1]
+
+## Thread Identifier
+
+SV-Witness 2.2 defines both an absent `thread_id` and `thread_id: 0` as naming
+the main thread. [1]
+
+Because this profile is sequential, these are the only supported thread-id
+forms.
+
+Within this profile, the two forms have the same thread denotation. This
+profile does not define transformation operators over their syntax.
+
+## Waypoint Evaluation
+
+Only waypoints in the current segment can be evaluated. A waypoint is evaluated
+when execution reaches the evaluation point determined by its type and
+location. A waypoint is passed when its evaluation succeeds. [1]
+
+### Assumption Waypoints
+
+An `assumption` waypoint is evaluated at the sequence point directly before its
+location. Its constraint is evaluated in the current program state. The
+waypoint is passed when that constraint is satisfied. [1]
+
+For a `follow` assumption waypoint, evaluation must succeed when the waypoint
+is evaluated.
+
+For an `avoid` assumption waypoint, the waypoint must never be passed while its
+segment is current. It may be evaluated zero or more times. [1]
+
+Therefore, an avoid assumption constrains the represented execution only at
+evaluation points reached while that segment is current.
+
+### Target Waypoints
+
+A `target` waypoint:
+
+- has action `follow`;
+- has no constraint;
+- is not evaluated and is not passed; and
+- identifies the statement or full expression whose evaluation directly
+  contains the specification violation. [1]
+
+For `unreach-call`, the target therefore identifies the violating call in the
+final segment.
+
+## Segment Structure
+
+A segment contains one or more waypoints.
+
+Within a segment, waypoint order does not impose evaluation order. Waypoints in
+the same segment do not need to be evaluated in the order in which they appear
+in the witness. [1]
+
+In this profile, a normal segment contains:
+
+- zero or more `avoid` assumption waypoints; and
+- exactly one `follow` assumption waypoint.
+
+A final segment contains:
+
+- zero or more `avoid` assumption waypoints; and
+- exactly one `target` waypoint.
+
+Only the current segment's waypoints affect matching.
+
+## Matching a Normal Segment
+
+Let $s$ be a normal segment and let $\pi$ be a continuous part of an execution.
+
+The execution part $\pi$ matches $s$ exactly when:
+
+1. no waypoint-passing rule of $s$ is violated during $\pi$; and
+2. $\pi$ ends directly when the segment's follow waypoint is passed.
+
+This specializes the SV-Witness 2.2 normal-segment definition to the restricted
+single-follow sequential profile. [1]
+
+Because the segment contains exactly one follow waypoint, that waypoint
+determines the end of the matching execution part.
+
+## Matching a Final Segment
+
+Let $s_f$ be the final segment and let $\pi_f$ be a continuous part of an
+execution.
+
+The execution part $\pi_f$ matches $s_f$ exactly when:
+
+1. no waypoint-passing rule of $s_f$ is violated during $\pi_f$; and
+2. the `unreach-call` specification violation occurs during evaluation of the
+   statement or full expression identified by the target waypoint.
+
+This is the restricted `unreach-call` form of the SV-Witness 2.2 final-segment
+semantics. [1]
+
+Matching a final segment does not require the program execution to terminate
+immediately after the violation. [1]
+
+## Violation-Sequence Matching
+
+Let a supported witness contain the ordered segments
+
+$$
+W = (s_1, s_2, \ldots, s_n),
+\qquad n \ge 1.
+$$
+
+Segments are matched in witness order. Only the next segment after the last
+matched segment is current. [1]
+
+An execution $e$ is represented by $W$ under task $\tau$ when $e$ can be
+divided into $n$ continuous execution parts
+
+$$
+e = \pi_1 \cdot \pi_2 \cdots \pi_n
+$$
+
+such that each $\pi_i$ matches the corresponding segment $s_i$. This is the
+SV-Witness 2.2 representation rule specialized to the supported profile. [1]
+
+## Witness Denotation
+
+The project defines the represented-execution set
+
+$$
+E_\tau(W)
+=
+\left\{
+e \in \operatorname{Exec}(\tau)
+\;\middle|\;
+e \text{ is represented by } W
+\right\}.
+$$
+
+For the supported profile, every execution in $E_\tau(W)$ reaches the
+`unreach-call` violation identified by the final target waypoint.
+
+This set is the semantic object used to compare witness meaning within the
+profile.
+
+Relations such as equality or inclusion between $E_\tau(W)$ and
+$E_\tau(W')$ are outside this profile. No transformation operator is defined
+here.
+
+## Witness Validity
+
+SV-Witness 2.2 defines a witness as valid with respect to the format when it
+adheres to the rules in the witness schema and the Software Witness Guide. The
+format does not define separate notions of syntactic validity and semantic
+validity. [1] [3]
+
+For violation sequences, representing at least one feasible execution is one
+of the validity requirements. Therefore, for a witness that otherwise satisfies
+the supported profile,
+
+$$
+E_\tau(W) = \varnothing
+$$
+
+is incompatible with SV-Witness 2.2 violation-sequence validity. [1]
+
+Non-emptiness is not the complete definition of witness validity. Other schema
+and guide requirements still apply.
+
+## Validity and Profile Support Are Different
+
+A witness can be valid SV-Witness 2.2 while being outside this project's
+profile. For example, a valid concurrent witness can use features deliberately
+excluded here.
+
+Likewise, using only profile-supported fields does not by itself establish that
+a witness is valid.
+
+The project therefore keeps these questions separate:
+
+1. Is the witness valid under SV-Witness 2.2?
+2. Is the witness inside the supported project profile?
+3. What execution set $E_\tau(W)$ does it represent?
+
+## Validity Is Not Validator Output
+
+SV-Witness 2.2 validity is defined by the format, not by the behavior of a
+particular validator or linter. The guide also distinguishes validity from
+correctness and usefulness. [1]
+
+This profile therefore does not define an operational predicate such as
+`Confirmed` as part of witness semantics.
+
+Validator results, unsupported features, incomplete analysis, timeouts,
+resource limits, and other run outcomes are operational concerns outside this
+semantic profile.
+
+No validator under test is used to define $E_\tau(W)$.
+
+## Transformation Boundary
+
+For every transformation studied by this project,
+
+$$
+T_\tau : W \mapsto W'
+$$
+
+the verification task $\tau$ remains fixed.
+
+A transformation may change witness syntax only. It does not change:
+
+- the program $P$;
+- the checked property $\varphi$; or
+- the execution and machine assumptions $M$.
+
+The semantic effect of the transformation is determined by comparing
+$E_\tau(W)$ and $E_\tau(W')$.
+
+This profile does not define transformation operators, operator preconditions,
+or exact, broadening, and narrowing relation classes.
+
+## Outside This Profile
+
+This profile does not define:
+
+- which assumption-expression rewrites preserve meaning;
+- whether optional location information can be removed without changing
+  denotation;
+- which avoid-waypoint edits broaden or narrow represented executions;
+- which transformations compose;
+- which semantic relations constrain validator outcomes;
+- how operational validator results are classified.
+
+These topics are outside the scope of this document.
+
+## References
+
+[1]: https://gitlab.com/sosy-lab/benchmarking/sv-witnesses/-/blob/2.2/user-guide/Witness-Format.md
+[2]: https://gitlab.com/sosy-lab/benchmarking/sv-witnesses/-/blob/2.2/format/schemas/violation-witness-schema.yml
+[3]: https://gitlab.com/sosy-lab/benchmarking/sv-witnesses/-/blob/2.2/changelog.md
