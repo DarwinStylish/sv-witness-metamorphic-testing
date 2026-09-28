@@ -56,7 +56,7 @@ When the derived constraints are applied to real validator runs, at least some
 observed outcome pairs fall into a non-indeterminate class defined by the
 semantic relationship and the outcome model.
 
-The classification rules are established before the empirical evaluation.
+The classification rules are defined before the empirical evaluation.
 
 A classification does not by itself establish a validator defect.
 
