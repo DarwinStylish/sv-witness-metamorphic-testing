@@ -11,12 +11,14 @@ experiments may reject or narrow them.
 
 There are transformations from one SV-Witness violation witness to another for
 the same verification task where a non-trivial semantic relationship between
-the two witnesses can be justified independently from the validator under test.
+the two witnesses can be justified within the supported semantic profile,
+without relying on the validator under test or rerunning the full verification
+task.
 
 The relationship may preserve, broaden, or narrow what the witness represents.
 
-Evidence against this hypothesis includes finding that non-trivial
-transformations cannot be justified without:
+Evidence against this hypothesis includes finding that non-trivial semantic
+relationships for such transformations cannot be justified without:
 
 - relying on the validator under test;
 - rerunning the full verification task; or
@@ -25,10 +27,12 @@ transformations cannot be justified without:
 ## H2: Some Semantic Relations Constrain Validator Outcomes
 
 At least some justified relationships between related witnesses give
-non-trivial constraints on the outcomes of validator runs.
+non-trivial constraints on combinations of validator outcomes without assuming
+that the validator under test is complete.
 
-A constraint is non-trivial when it rules out at least one possible combination
-of outcomes under its stated assumptions.
+A constraint is non-trivial when the semantic relationship, together with its
+stated assumptions, rules out at least one outcome combination that those
+assumptions alone do not rule out.
 
 This hypothesis does not assume that every semantic relationship determines a
 validator result.
@@ -46,9 +50,10 @@ relationships established for them.
 Evidence for this hypothesis includes transformation evidence and tests that
 can be checked without trusting the validator under test.
 
-Evidence against this hypothesis includes finding that the implementation
-cannot preserve or demonstrate the claimed relationship without relying on the
-validator being tested.
+Evidence against this hypothesis includes a case where the stated
+transformation preconditions hold but the implementation does not preserve the
+claimed relationship, or finding that the relationship cannot be demonstrated
+without relying on the validator being tested.
 
 ## H4: Some Observed Outcome Pairs Are Classifiable
 
