@@ -123,7 +123,12 @@ The base transformation classes below use non-strict inclusion. This allows an
 operator to have the same classification across inputs even when a particular
 application happens to preserve the represented set exactly.
 
-Strictness can be recorded separately for an individual transformation
+The base classes are therefore not disjoint. Every exact transformation is both
+narrowing and broadening. Conversely, any transformation that is both narrowing
+and broadening is exact.
+
+Strictness is a property of an individual transformation application. A
+strictly narrowing or strictly broadening application is not exact for that
 application.
 
 ## Partial Transformations
@@ -137,20 +142,33 @@ T_\tau :
 \mathcal{W}_\tau.
 $$
 
-The transformation is partial because its semantic justification may require
-operator-specific preconditions.
+The transformation is partial because a concrete operator may have
+operator-specific semantic preconditions.
 
 Let
 
 $$
-\operatorname{dom}(T_\tau)
-\subseteq
-\mathcal{W}_\tau
+\operatorname{Pre}_{T,\tau}(W)
 $$
 
-be the witnesses for which those preconditions hold and for which the
-transformed witness can be established to remain in
-$\mathcal{W}_\tau$.
+denote the precondition predicate for $T_\tau$. Its domain is
+
+$$
+\operatorname{dom}(T_\tau)
+=
+\left\{
+W \in \mathcal{W}_\tau
+\;\middle|\;
+\operatorname{Pre}_{T,\tau}(W)
+\right\}.
+$$
+
+A transformation specification is well-formed only if its preconditions imply
+that every defined result $T_\tau(W)$ belongs to $\mathcal{W}_\tau$.
+
+Domain membership is a semantic property determined by the operator and its
+precondition predicate. Whether sufficient evidence has been established for a
+particular application is a separate evidential question.
 
 A concrete implementation may construct an intermediate witness candidate.
 Such a candidate is not an admitted result of $T_\tau$ until the required
@@ -306,8 +324,10 @@ A precondition may restrict:
 
 A transformation claim applies only when its stated preconditions hold.
 
-Absence of a precondition proof means that the transformation is not defined
-for that witness under this algebra.
+For a concrete witness, the project admits a transformation application only
+after the relevant preconditions have been established. Failure to establish
+them leaves that application unadmitted; it does not by itself imply that the
+mathematical precondition is false.
 
 ## Semantic Evidence
 
@@ -375,13 +395,18 @@ The result depends on the concrete denotations.
 
 ## Identity
 
-The identity transformation
+The identity transformation is the total map
 
 $$
-I_\tau(W) = W
+I_\tau :
+\mathcal{W}_\tau
+\longrightarrow
+\mathcal{W}_\tau,
+\qquad
+I_\tau(W) = W.
 $$
 
-is exact wherever it is defined.
+It is exact.
 
 The existence of identity and the composition properties above are ordinary
 consequences of equality and set inclusion. They are algebraic properties of
