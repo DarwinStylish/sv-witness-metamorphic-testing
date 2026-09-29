@@ -71,9 +71,11 @@ class Program:
 class Specification:
     """Opaque checked-specification text.
 
-    Construction does not establish that the text denotes a supported
+    Construction preserves the specification supplied by the verification
+    task. It does not establish that the text denotes a supported
     `unreach-call` property or that two different texts are semantically
-    equivalent.
+    equivalent. Membership in the supported research profile is a separate
+    admission question.
     """
 
     text: str
@@ -98,11 +100,13 @@ class DataModel(StrEnum):
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class ExecutionAssumption:
-    """Opaque additional machine or execution assumption.
+    """Opaque named machine or execution assumption.
 
-    This type permits the task model to retain assumptions that contribute to
-    the semantic execution context but are not represented by the current
-    SV-Witness `language` and `data_model` fields.
+    This project-side carrier permits a caller to retain assumptions that
+    contribute to the semantic execution context but are not represented by
+    the current SV-Witness `language` and `data_model` fields.
+
+    The model assigns no semantic equivalence to different assumption objects.
     """
 
     name: str
@@ -118,11 +122,16 @@ class ExecutionAssumption:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class ExecutionContext:
-    """Execution context M for a verification task."""
+    """Execution context M for a verification task.
+
+    Additional assumptions are retained in caller-supplied order, including
+    duplicate occurrences. This representation deliberately does not define
+    normalization, deduplication, or semantic equivalence for them.
+    """
 
     language: Language
     data_model: DataModel
-    additional_assumptions: frozenset[ExecutionAssumption] = frozenset()
+    additional_assumptions: tuple[ExecutionAssumption, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.language, Language):
@@ -131,8 +140,8 @@ class ExecutionContext:
         if not isinstance(self.data_model, DataModel):
             raise TaskModelError("execution-context data_model must be a DataModel")
 
-        if not isinstance(self.additional_assumptions, frozenset):
-            raise TaskModelError("additional execution assumptions must be a frozenset")
+        if not isinstance(self.additional_assumptions, tuple):
+            raise TaskModelError("additional execution assumptions must be a tuple")
 
         if any(
             not isinstance(assumption, ExecutionAssumption)
@@ -148,7 +157,9 @@ class VerificationTask:
     """Fixed verification task tau = (P, phi, M).
 
     Witness provenance and witness-format metadata are deliberately not part of
-    this model.
+    this model. Construction establishes the task value and local model
+    invariants; it does not establish admission to the supported research
+    profile.
     """
 
     program: Program

@@ -144,6 +144,23 @@ def test_specification_retains_opaque_text() -> None:
     assert value.text == text
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "G ! call(reach_error())",
+        "G ! overflow",
+        "G ! data-race",
+        "",
+    ],
+)
+def test_specification_construction_does_not_perform_profile_admission(
+    text: str,
+) -> None:
+    value = Specification(text=text)
+
+    assert value.text == text
+
+
 def test_specification_rejects_non_string() -> None:
     with pytest.raises(TaskModelError, match="string"):
         Specification(text=7)  # type: ignore[arg-type]
@@ -196,10 +213,45 @@ def test_execution_context_retains_additional_assumptions() -> None:
     context = ExecutionContext(
         language=Language.C,
         data_model=DataModel.LP64,
-        additional_assumptions=frozenset({assumption}),
+        additional_assumptions=(assumption,),
     )
 
-    assert context.additional_assumptions == frozenset({assumption})
+    assert context.additional_assumptions == (assumption,)
+
+
+def test_execution_context_preserves_assumption_order() -> None:
+    first = ExecutionAssumption(name="first", value="1")
+    second = ExecutionAssumption(name="second", value="2")
+
+    forward = ExecutionContext(
+        language=Language.C,
+        data_model=DataModel.ILP32,
+        additional_assumptions=(first, second),
+    )
+    reversed_context = ExecutionContext(
+        language=Language.C,
+        data_model=DataModel.ILP32,
+        additional_assumptions=(second, first),
+    )
+
+    assert forward.additional_assumptions == (first, second)
+    assert reversed_context.additional_assumptions == (second, first)
+    assert forward != reversed_context
+
+
+def test_execution_context_preserves_duplicate_assumptions() -> None:
+    assumption = ExecutionAssumption(name="mode", value="example")
+
+    context = ExecutionContext(
+        language=Language.C,
+        data_model=DataModel.ILP32,
+        additional_assumptions=(assumption, assumption),
+    )
+
+    assert context.additional_assumptions == (
+        assumption,
+        assumption,
+    )
 
 
 def test_execution_context_rejects_raw_language_string() -> None:
@@ -218,12 +270,12 @@ def test_execution_context_rejects_raw_data_model_string() -> None:
         )
 
 
-def test_execution_context_rejects_mutable_assumption_set() -> None:
-    with pytest.raises(TaskModelError, match="frozenset"):
+def test_execution_context_rejects_non_tuple_assumptions() -> None:
+    with pytest.raises(TaskModelError, match="tuple"):
         ExecutionContext(
             language=Language.C,
             data_model=DataModel.ILP32,
-            additional_assumptions=set(),  # type: ignore[arg-type]
+            additional_assumptions=[],  # type: ignore[arg-type]
         )
 
 
@@ -232,8 +284,8 @@ def test_execution_context_rejects_invalid_assumption_element() -> None:
         ExecutionContext(
             language=Language.C,
             data_model=DataModel.ILP32,
-            additional_assumptions=frozenset(
-                {"example"}  # type: ignore[arg-type]
+            additional_assumptions=(
+                "example",  # type: ignore[arg-type]
             ),
         )
 
