@@ -19,11 +19,17 @@ class Location:
     function: str | None = None
 
     def __post_init__(self) -> None:
+        if type(self.file_name) is not str:
+            raise WitnessModelError("location file_name must be a string")
+
         if type(self.line) is not int or self.line < 1:
             raise WitnessModelError("location line must be a positive integer")
 
         if self.column is not None and (type(self.column) is not int or self.column < 1):
             raise WitnessModelError("location column must be a positive integer when present")
+
+        if self.function is not None and type(self.function) is not str:
+            raise WitnessModelError("location function must be a string when present")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -34,6 +40,10 @@ class CExpression:
     """
 
     value: str
+
+    def __post_init__(self) -> None:
+        if type(self.value) is not str:
+            raise WitnessModelError("C expression value must be a string")
 
 
 class AssumptionAction(StrEnum):
@@ -61,6 +71,15 @@ class AssumptionWaypoint:
     thread_id: int | None = None
 
     def __post_init__(self) -> None:
+        if not isinstance(self.action, AssumptionAction):
+            raise WitnessModelError("assumption action must be an AssumptionAction")
+
+        if not isinstance(self.constraint, CExpression):
+            raise WitnessModelError("assumption constraint must be a CExpression")
+
+        if not isinstance(self.location, Location):
+            raise WitnessModelError("assumption location must be a Location")
+
         _validate_thread_id(self.thread_id)
 
 
@@ -76,6 +95,9 @@ class TargetWaypoint:
     thread_id: int | None = None
 
     def __post_init__(self) -> None:
+        if not isinstance(self.location, Location):
+            raise WitnessModelError("target location must be a Location")
+
         _validate_thread_id(self.thread_id)
 
 
@@ -95,6 +117,9 @@ class NormalSegment:
 
         if not self.waypoints:
             raise WitnessModelError("normal segment must contain at least one waypoint")
+
+        if any(not isinstance(waypoint, AssumptionWaypoint) for waypoint in self.waypoints):
+            raise WitnessModelError("normal-segment waypoints must all be assumption waypoints")
 
         follow_positions = [
             index

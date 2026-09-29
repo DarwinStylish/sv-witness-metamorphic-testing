@@ -174,3 +174,89 @@ def test_model_objects_are_immutable() -> None:
 
     with pytest.raises(FrozenInstanceError):
         value.line = 8  # type: ignore[misc]
+
+
+def test_location_rejects_non_string_file_name() -> None:
+    with pytest.raises(WitnessModelError, match="file_name"):
+        Location(file_name=7, line=1)  # type: ignore[arg-type]
+
+
+def test_location_rejects_non_string_function() -> None:
+    with pytest.raises(WitnessModelError, match="function"):
+        Location(
+            file_name="example.c",
+            line=1,
+            function=7,  # type: ignore[arg-type]
+        )
+
+
+def test_location_rejects_boolean_line() -> None:
+    with pytest.raises(WitnessModelError, match="line"):
+        Location(file_name="example.c", line=True)
+
+
+def test_c_expression_rejects_non_string_value() -> None:
+    with pytest.raises(WitnessModelError, match="C expression"):
+        CExpression(value=7)  # type: ignore[arg-type]
+
+
+def test_assumption_rejects_raw_string_action() -> None:
+    with pytest.raises(WitnessModelError, match="action"):
+        AssumptionWaypoint(
+            action="follow",  # type: ignore[arg-type]
+            constraint=CExpression(value="x == 1"),
+            location=location(),
+        )
+
+
+def test_assumption_rejects_non_expression_constraint() -> None:
+    with pytest.raises(WitnessModelError, match="constraint"):
+        AssumptionWaypoint(
+            action=AssumptionAction.FOLLOW,
+            constraint="x == 1",  # type: ignore[arg-type]
+            location=location(),
+        )
+
+
+def test_assumption_rejects_non_location() -> None:
+    with pytest.raises(WitnessModelError, match="location"):
+        AssumptionWaypoint(
+            action=AssumptionAction.FOLLOW,
+            constraint=CExpression(value="x == 1"),
+            location="example.c:7",  # type: ignore[arg-type]
+        )
+
+
+def test_target_rejects_non_location() -> None:
+    with pytest.raises(WitnessModelError, match="location"):
+        TargetWaypoint(
+            location="example.c:12",  # type: ignore[arg-type]
+        )
+
+
+@pytest.mark.parametrize("thread_id", [-1, 1, 2, True])
+def test_target_rejects_thread_ids_outside_profile(
+    thread_id: int,
+) -> None:
+    with pytest.raises(WitnessModelError, match="thread_id"):
+        target(thread_id=thread_id)
+
+
+def test_normal_segment_rejects_target_waypoint_consistently() -> None:
+    with pytest.raises(
+        WitnessModelError,
+        match="assumption waypoints",
+    ):
+        NormalSegment(
+            waypoints=(target(),),  # type: ignore[arg-type]
+        )
+
+
+def test_normal_segment_rejects_arbitrary_element_consistently() -> None:
+    with pytest.raises(
+        WitnessModelError,
+        match="assumption waypoints",
+    ):
+        NormalSegment(
+            waypoints=("not-a-waypoint",),  # type: ignore[arg-type]
+        )
