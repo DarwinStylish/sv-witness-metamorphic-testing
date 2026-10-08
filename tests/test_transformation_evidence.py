@@ -10,6 +10,7 @@ from sv_witness_metamorphic_testing.exact_transformations import (
 from sv_witness_metamorphic_testing.monotone_transformations import (
     remove_avoid_assumption,
 )
+from sv_witness_metamorphic_testing.semantic_relation import BaseRelation
 from sv_witness_metamorphic_testing.task_model import (
     DataModel,
     ExecutionContext,
@@ -22,7 +23,6 @@ from sv_witness_metamorphic_testing.task_model import (
 )
 from sv_witness_metamorphic_testing.transformation_evidence import (
     AvoidRemovalApplication,
-    BaseRelation,
     EvidenceError,
     ExplicitMainThreadApplication,
     ImplicitMainThreadApplication,

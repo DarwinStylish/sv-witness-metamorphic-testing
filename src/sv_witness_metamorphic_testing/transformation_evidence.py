@@ -1,8 +1,8 @@
 """Independent local evidence checks for concrete witness transformations."""
 
 from dataclasses import dataclass, field
-from enum import StrEnum
 
+from .semantic_relation import BaseRelation
 from .task_model import VerificationTask
 from .witness_model import (
     AssumptionAction,
@@ -15,13 +15,6 @@ from .witness_model import (
 
 class EvidenceError(ValueError):
     """Raised when transformation-local evidence cannot be established."""
-
-
-class BaseRelation(StrEnum):
-    """Base semantic relation supplied by a previously established theorem."""
-
-    EXACT = "exact"
-    BROADENING = "broadening"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
