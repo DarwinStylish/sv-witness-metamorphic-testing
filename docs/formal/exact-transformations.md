@@ -27,7 +27,7 @@ Let
 be a fixed verification task and let
 
 \[
-W \in \mathcal{W}_\tau.
+W \in \mathcal{C}_\tau.
 \]
 
 The verification task remains unchanged by every transformation defined here.
@@ -55,9 +55,9 @@ Define
 
 \[
 T^0_\tau :
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \longrightarrow
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \]
 
 as the whole-witness transformation that replaces every absent supported
@@ -74,10 +74,10 @@ Waypoint order, segment structure, and segment order are retained unchanged.
 
 ### Domain
 
-The operator is total on \(\mathcal{W}_\tau\).
+The operator is total on \(\mathcal{C}_\tau\).
 
 It has no additional operator-specific semantic precondition beyond membership
-of the input witness in the supported witness universe.
+of the input witness in the candidate witness universe.
 
 A particular application need not change the witness syntax. A witness whose
 waypoints already all use explicit `thread_id: 0` remains syntactically
@@ -88,7 +88,7 @@ unchanged.
 For every
 
 \[
-W \in \mathcal{W}_\tau,
+W \in \mathcal{C}_\tau,
 \]
 
 \[
@@ -105,9 +105,9 @@ Define
 
 \[
 T^\varnothing_\tau :
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \longrightarrow
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \]
 
 as the whole-witness transformation that removes explicit main-thread
@@ -124,10 +124,10 @@ Waypoint order, segment structure, and segment order are retained unchanged.
 
 ### Domain
 
-The operator is total on \(\mathcal{W}_\tau\).
+The operator is total on \(\mathcal{C}_\tau\).
 
 It has no additional operator-specific semantic precondition beyond membership
-of the input witness in the supported witness universe.
+of the input witness in the candidate witness universe.
 
 A particular application need not change the witness syntax. A witness whose
 waypoints already all omit `thread_id` remains syntactically unchanged.
@@ -137,7 +137,7 @@ waypoints already all omit `thread_id` remains syntactically unchanged.
 For every
 
 \[
-W \in \mathcal{W}_\tau,
+W \in \mathcal{C}_\tau,
 \]
 
 \[
@@ -175,7 +175,7 @@ The conditions for matching every segment are consequently unchanged.
 Thus, for every
 
 \[
-W \in \mathcal{W}_\tau,
+W \in \mathcal{C}_\tau,
 \]
 
 \[
@@ -204,23 +204,52 @@ and
 T^\varnothing_\tau(W) \equiv_\tau W.
 \]
 
-## Validity Preservation
 
-The transformations preserve the witness fields and structural relationships
-other than the two equivalent main-thread representations.
+## Candidate and Validity Preservation
 
-Both resulting `thread_id` forms are admitted by the supported profile and by
-SV-Witness 2.2.
+Both main-thread canonicalization operators preserve the requirements of the
+candidate universe.
 
-For an input witness in \(\mathcal{W}_\tau\), exactness preserves
-represented-execution non-emptiness.
+They change only the representation of the main-thread identifier.
 
-The operators therefore introduce no new validity obligation concerning
-`thread_id`.
+Both an absent `thread_id` and `thread_id: 0` are admitted by the supported
+profile and have the same thread denotation.
 
-This statement does not turn construction of the project's internal witness
-model into a general proof of SV-Witness validity. The exactness claim applies
-to inputs already established to belong to \(\mathcal{W}_\tau\).
+Therefore, for every
+
+\[
+W \in \mathcal{C}_\tau,
+\]
+
+the transformed result also belongs to \(\mathcal{C}_\tau\).
+
+The exactness theorem is independent of represented-execution non-emptiness.
+
+If the source is additionally a valid witness,
+
+\[
+W \in \mathcal{W}_\tau,
+\]
+
+then
+
+\[
+E_\tau(W) \neq \varnothing.
+\]
+
+Exactness gives
+
+\[
+E_\tau(T_\tau(W))
+=
+E_\tau(W),
+\]
+
+so the result is also non-empty and therefore belongs to
+\(\mathcal{W}_\tau\).
+
+Construction of the project's internal witness model does not by itself
+establish membership in either semantic universe.
 
 ## Composition of the Two Operators
 
@@ -258,7 +287,7 @@ model without receiving \(\tau\) as a runtime argument.
 This does not make the semantic transformation task-independent.
 
 The notation \(T_\tau\) records that the exactness claim is interpreted for a
-fixed task and for witnesses in \(\mathcal{W}_\tau\). The implementation itself
+fixed task and for witnesses in \(\mathcal{C}_\tau\). The implementation itself
 does not need to inspect the task because the changed field has the same
 denotation throughout the supported profile.
 
