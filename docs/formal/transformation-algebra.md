@@ -35,35 +35,45 @@ as the set of feasible executions represented by $W$ for task $\tau$.
 
 All relations below compare witnesses using this represented-execution set.
 
-## Witness Universe
 
-Let
+## Semantic Universes
 
-$$
+The semantic profile defines two related universes for a fixed task
+\(\tau\).
+
+The candidate universe
+
+\[
+\mathcal{C}_\tau
+\]
+
+contains otherwise-admissible, profile-supported, task-bound witness
+candidates for which \(E_\tau(W)\) is defined. A candidate may have an empty
+represented-execution set.
+
+The valid-witness universe is
+
+\[
 \mathcal{W}_\tau
-$$
+=
+\left\{
+W \in \mathcal{C}_\tau
+\;\middle|\;
+E_\tau(W) \neq \varnothing
+\right\}.
+\]
 
-denote the set of witnesses that:
+The transformation algebra is defined over \(\mathcal{C}_\tau\).
 
-- are bound to the fixed task $\tau$;
-- are inside the supported project profile; and
-- are valid with respect to SV-Witness 2.2.
+This is necessary because equality and inclusion remain meaningful when one or
+both represented-execution sets are empty.
 
-Membership in $\mathcal{W}_\tau$ therefore requires more than a supported
-surface syntax. The witness must satisfy the applicable schema and guide rules.
-
-For every $W \in \mathcal{W}_\tau$,
-
-$$
-E_\tau(W) \neq \varnothing.
-$$
-
-Non-emptiness is necessary for a supported violation witness to be valid, but
-it is not by itself sufficient for SV-Witness validity.
+Validity is therefore a derived property of a candidate rather than a
+precondition for stating the semantic relation.
 
 ## Semantic Inclusion
 
-For witnesses $W_1, W_2 \in \mathcal{W}_\tau$, define
+For witnesses $W_1, W_2 \in \mathcal{C}_\tau$, define
 
 $$
 W_1 \sqsubseteq_\tau W_2
@@ -100,7 +110,7 @@ W_2 \sqsubseteq_\tau W_1.
 $$
 
 Semantic equivalence is an equivalence relation over
-$\mathcal{W}_\tau$.
+$\mathcal{C}_\tau$.
 
 It does not require syntactic equality.
 
@@ -137,9 +147,9 @@ A semantic transformation for task $\tau$ is modeled as a partial function
 
 $$
 T_\tau :
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \rightharpoonup
-\mathcal{W}_\tau.
+\mathcal{C}_\tau.
 $$
 
 The transformation is partial because a concrete operator may have
@@ -157,14 +167,14 @@ $$
 \operatorname{dom}(T_\tau)
 =
 \left\{
-W \in \mathcal{W}_\tau
+W \in \mathcal{C}_\tau
 \;\middle|\;
 \operatorname{Pre}_{T,\tau}(W)
 \right\}.
 $$
 
 A transformation specification is well-formed only if its preconditions imply
-that every defined result $T_\tau(W)$ belongs to $\mathcal{W}_\tau$.
+that every defined result $T_\tau(W)$ belongs to $\mathcal{C}_\tau$.
 
 Domain membership is a semantic property determined by the operator and its
 precondition predicate. Whether sufficient evidence has been established for a
@@ -196,118 +206,141 @@ Exactness concerns represented executions. It does not imply that the two
 witnesses have identical syntax, metadata, waypoint order, or other
 representation details.
 
+
 ## Narrowing Transformations
 
-A transformation $T_\tau$ is **narrowing** when
+A transformation \(T_\tau\) is **narrowing** when
 
-$$
+\[
 \forall W \in \operatorname{dom}(T_\tau):
 \quad
 T_\tau(W) \sqsubseteq_\tau W.
-$$
+\]
 
 Equivalently,
 
-$$
+\[
 E_\tau(T_\tau(W))
 \subseteq
 E_\tau(W).
-$$
+\]
 
 A particular application is **strictly narrowing** when
 
-$$
+\[
 E_\tau(T_\tau(W))
 \subset
 E_\tau(W).
-$$
+\]
 
-A narrowing relation alone does not establish that the transformed witness
-represents any execution.
+Because the algebra is defined over \(\mathcal{C}_\tau\), a narrowing result
+may legitimately have
 
-In particular,
-
-$$
-E_\tau(T_\tau(W))
-\subseteq
-E_\tau(W)
-$$
-
-is compatible with
-
-$$
+\[
 E_\tau(T_\tau(W))
 =
 \varnothing.
-$$
+\]
 
-Therefore, a narrowing transformation requires an independent argument that
-its result is non-empty before the result can be admitted to
-$\mathcal{W}_\tau$.
+That possibility does not invalidate the narrowing relation.
+
+If the source is additionally known to belong to
+\(\mathcal{W}_\tau\), narrowing alone does not imply that the result also
+belongs to \(\mathcal{W}_\tau\).
+
+Result non-emptiness would need a separate argument before validity could be
+concluded.
+
 
 ## Broadening Transformations
 
-A transformation $T_\tau$ is **broadening** when
+A transformation \(T_\tau\) is **broadening** when
 
-$$
+\[
 \forall W \in \operatorname{dom}(T_\tau):
 \quad
 W \sqsubseteq_\tau T_\tau(W).
-$$
+\]
 
 Equivalently,
 
-$$
+\[
 E_\tau(W)
 \subseteq
 E_\tau(T_\tau(W)).
-$$
+\]
 
 A particular application is **strictly broadening** when
 
-$$
+\[
 E_\tau(W)
 \subset
 E_\tau(T_\tau(W)).
-$$
+\]
 
-Because $W \in \mathcal{W}_\tau$ implies
+Broadening itself does not require either represented-execution set to be
+non-empty.
 
-$$
-E_\tau(W) \neq \varnothing,
-$$
+If the source is additionally known to be valid,
 
-the broadening relation implies
+\[
+W \in \mathcal{W}_\tau,
+\]
 
-$$
+then
+
+\[
+E_\tau(W) \neq \varnothing
+\]
+
+and broadening gives
+
+\[
 E_\tau(T_\tau(W)) \neq \varnothing.
-$$
+\]
 
-This establishes the non-emptiness requirement only. It does not establish all
-other SV-Witness validity requirements for the transformed witness.
+Provided the transformation result is already established to belong to
+\(\mathcal{C}_\tau\), this derived non-emptiness implies
 
-## Validity Obligations
+\[
+T_\tau(W) \in \mathcal{W}_\tau.
+\]
 
-A semantic relation between $W$ and a transformed candidate $W'$ does not by
-itself establish that $W'$ belongs to $\mathcal{W}_\tau$.
+Thus validity preservation is a consequence for valid sources, not a premise
+of the broadening relation.
 
-Every admitted transformation result must separately satisfy the applicable
-profile and SV-Witness validity conditions, including requirements concerning
-structure, locations, expressions, waypoint forms, task binding, and other
-format rules.
 
-The represented-execution relation contributes differently to the
-non-emptiness obligation:
+## Candidate and Validity Obligations
 
-- for an exact transformation, non-emptiness follows from equality with the
-  denotation of the valid input witness;
-- for a broadening transformation, non-emptiness follows from inclusion of the
-  valid input witness's denotation;
-- for a narrowing transformation, non-emptiness must be established
-  separately.
+A semantic transformation is defined over the candidate universe.
 
-These implications concern non-emptiness only and do not replace the remaining
-validity obligations.
+Every admitted transformation application must therefore establish that:
+
+- the source belongs to \(\mathcal{C}_\tau\);
+- the operator-specific preconditions hold; and
+- the transformed result also belongs to \(\mathcal{C}_\tau\).
+
+These candidate-domain obligations are distinct from witness validity.
+
+For a candidate \(W\), validity is the additional condition
+
+\[
+W \in \mathcal{W}_\tau
+\quad\Longleftrightarrow\quad
+E_\tau(W) \neq \varnothing.
+\]
+
+The semantic relation contributes differently to validity preservation for a
+source already known to be valid:
+
+- exactness preserves non-emptiness by equality;
+- broadening preserves non-emptiness by inclusion; and
+- narrowing does not in general preserve non-emptiness.
+
+These are derived validity consequences.
+
+They are not required in order for equality or inclusion to be stated over
+\(\mathcal{C}_\tau\).
 
 ## Transformation Preconditions
 
@@ -399,9 +432,9 @@ The identity transformation is the total map
 
 $$
 I_\tau :
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \longrightarrow
-\mathcal{W}_\tau,
+\mathcal{C}_\tau,
 \qquad
 I_\tau(W) = W.
 $$
@@ -438,7 +471,7 @@ an implementation realizes that relation.
 For a concrete implementation, the project must separately establish that:
 
 - its preconditions are checked correctly;
-- the produced witness satisfies the required profile and validity conditions;
+- the produced candidate satisfies the required candidate-domain conditions;
 - the implementation performs the intended witness change; and
 - the claimed relation between represented-execution sets holds.
 
@@ -453,7 +486,7 @@ This algebra defines:
 - exact, narrowing, and broadening transformation classes;
 - strict forms for individual applications;
 - transformation domains and preconditions;
-- validity and non-emptiness obligations;
+- candidate-domain obligations and derived validity consequences;
 - admissible sources of semantic evidence; and
 - basic composition properties.
 

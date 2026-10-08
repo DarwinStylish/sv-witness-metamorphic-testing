@@ -275,11 +275,52 @@ $$
 such that each $\pi_i$ matches the corresponding segment $s_i$. This is the
 SV-Witness 2.2 representation rule specialized to the supported profile. [1]
 
+
+## Candidate Witness Universe
+
+For a fixed task \(\tau\), let
+
+\[
+\mathcal{C}_\tau
+\]
+
+denote the candidate witness universe used by the project.
+
+A witness belongs to \(\mathcal{C}_\tau\) when it:
+
+- is bound to the fixed verification task \(\tau\);
+- uses only features admitted by the supported project profile; and
+- satisfies the applicable SV-Witness 2.2 schema and guide requirements used
+  by this profile, except for the requirement that a violation sequence
+  represent at least one feasible execution.
+
+The last point is deliberate.
+
+The candidate universe relaxes exactly the represented-execution
+non-emptiness requirement so that an otherwise admissible violation sequence
+may still be interpreted when it represents no feasible execution.
+
+It does not relax task binding, profile restrictions, waypoint semantics,
+location requirements, expression requirements, segment structure, metadata
+requirements relevant to the fixed task, or other applicable SV-Witness 2.2
+conditions needed by this profile.
+
+Membership in \(\mathcal{C}_\tau\) is therefore stronger than construction of
+the project's local `ViolationSequence` model.
+
+The local model establishes only local structural invariants.
+
 ## Witness Denotation
 
-The project defines the represented-execution set
+For every
 
-$$
+\[
+W \in \mathcal{C}_\tau,
+\]
+
+the project defines the represented-execution set
+
+\[
 E_\tau(W)
 =
 \left\{
@@ -287,37 +328,60 @@ e \in \operatorname{Exec}_\tau
 \;\middle|\;
 e \text{ is represented by } W
 \right\}.
-$$
+\]
 
-For the supported profile, every execution in $E_\tau(W)$ reaches the
+For the supported profile, every execution in \(E_\tau(W)\) reaches the
 `unreach-call` violation identified by the final target waypoint.
+
+The set may be empty.
 
 This set is the semantic object used to compare witness meaning within the
 profile.
 
-Relations such as equality or inclusion between $E_\tau(W)$ and
-$E_\tau(W')$ are outside this profile. No transformation operator is defined
-here.
+Relations such as equality or inclusion between \(E_\tau(W)\) and
+\(E_\tau(W')\) are defined by the transformation algebra rather than by this
+profile.
 
-## Witness Validity
+## Valid Witness Universe
 
-SV-Witness 2.2 defines a witness as valid with respect to the format when it
-adheres to the rules in the witness schema and the Software Witness Guide. The
-format does not define separate notions of syntactic validity and semantic
-validity. [1] [3]
+SV-Witness 2.2 requires a violation sequence to represent at least one feasible
+execution. [1]
 
-For violation sequences, representing at least one feasible execution is one
-of the validity requirements. Therefore, for a witness that otherwise satisfies
-the supported profile,
+Because every other applicable profile, schema, guide, and task-binding
+condition is already required for membership in \(\mathcal{C}_\tau\), define
 
-$$
+\[
+\mathcal{W}_\tau
+=
+\left\{
+W \in \mathcal{C}_\tau
+\;\middle|\;
+E_\tau(W) \neq \varnothing
+\right\}.
+\]
+
+Thus \(\mathcal{W}_\tau\) is the subset of candidate witnesses that satisfy the
+remaining represented-execution non-emptiness requirement.
+
+For
+
+\[
+W \in \mathcal{C}_\tau,
+\]
+
+the condition
+
+\[
 E_\tau(W) = \varnothing
-$$
+\]
 
-is incompatible with SV-Witness 2.2 violation-sequence validity. [1]
+does not make the denotation undefined.
 
-Non-emptiness is not the complete definition of witness validity. Other schema
-and guide requirements still apply.
+It means that the candidate fails the violation-sequence non-emptiness
+requirement and therefore does not belong to \(\mathcal{W}_\tau\).
+
+This distinction allows semantic relations to be stated over candidates
+without weakening the upstream definition of a valid violation witness.
 
 ## Validity and Profile Support Are Different
 
@@ -325,14 +389,19 @@ A witness can be valid SV-Witness 2.2 while being outside this project's
 profile. For example, a valid concurrent witness can use features deliberately
 excluded here.
 
-Likewise, using only profile-supported fields does not by itself establish that
-a witness is valid.
+Likewise, using only profile-supported fields does not by itself establish
+membership in \(\mathcal{C}_\tau\), and membership in
+\(\mathcal{C}_\tau\) does not establish membership in
+\(\mathcal{W}_\tau\).
 
 The project therefore keeps these questions separate:
 
-1. Is the witness valid under SV-Witness 2.2?
-2. Is the witness inside the supported project profile?
-3. What execution set $E_\tau(W)$ does it represent?
+1. Is the candidate bound to the fixed verification task?
+2. Does it satisfy the supported profile and the candidate-admission
+   requirements?
+3. What execution set \(E_\tau(W)\) does it represent?
+4. Is that represented-execution set non-empty, making the candidate a valid
+   violation witness in \(\mathcal{W}_\tau\)?
 
 ## Validity Is Not Validator Output
 

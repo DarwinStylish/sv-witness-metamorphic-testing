@@ -26,7 +26,7 @@ Let
 be a fixed verification task and let
 
 \[
-W \in \mathcal{W}_\tau.
+W \in \mathcal{C}_\tau.
 \]
 
 Write the ordered segments of \(W\) as
@@ -53,9 +53,9 @@ For a fixed pair of positions \((i,j)\), define
 \[
 R^{\mathrm{avoid}}_{\tau,i,j}
 :
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \rightharpoonup
-\mathcal{W}_\tau
+\mathcal{C}_\tau
 \]
 
 as the transformation that removes exactly waypoint \(w_{i,j}\) from segment
@@ -93,7 +93,7 @@ R^{\mathrm{avoid}}_{\tau,i,j}
 \right)
 =
 \left\{
-W \in \mathcal{W}_\tau
+W \in \mathcal{C}_\tau
 \;\middle|\;
 \operatorname{Pre}^{\mathrm{avoid}}_{i,j,\tau}(W)
 \right\}.
@@ -290,23 +290,47 @@ The base classification is broadening in both cases.
 Determining strictness requires additional semantic evidence and is not part of
 the operator definition.
 
-## Validity Preservation
 
-The input witness belongs to \(\mathcal{W}_\tau\), so it is already a valid,
-profile-supported witness with non-empty represented-execution set.
+## Candidate and Validity Preservation
 
-The transformation preserves all required `follow` and target waypoints and
-removes only one optional `avoid` assumption.
+The avoid-removal operator preserves the candidate-domain requirements used by
+the supported profile.
 
-SV-Witness 2.2 permits an arbitrary number of `avoid` waypoints in a segment,
-including zero. [1]
+The selected waypoint must be an optional `avoid` assumption.
 
-The transformation therefore preserves the segment forms required by the
-supported profile.
+Removal preserves:
 
-All retained waypoint fields come unchanged from the valid input witness.
+- all required normal-segment `follow` waypoints;
+- the final target waypoint;
+- segment kinds and segment order;
+- all retained waypoint fields;
+- task binding; and
+- the remaining profile structure.
 
-Because the transformation is broadening,
+Therefore, whenever the operator is defined for
+
+\[
+W \in \mathcal{C}_\tau,
+\]
+
+its result also belongs to \(\mathcal{C}_\tau\).
+
+No represented-execution non-emptiness premise is needed for the broadening
+theorem.
+
+If the source is additionally valid,
+
+\[
+W \in \mathcal{W}_\tau,
+\]
+
+then
+
+\[
+E_\tau(W) \neq \varnothing.
+\]
+
+Because avoid removal is broadening,
 
 \[
 E_\tau(W)
@@ -314,33 +338,16 @@ E_\tau(W)
 E_\tau
 \left(
 R^{\mathrm{avoid}}_{\tau,i,j}(W)
-\right)
+\right),
 \]
 
-and
+so the result is also non-empty.
 
-\[
-E_\tau(W)
-\ne
-\varnothing,
-\]
+The transformed candidate therefore belongs to
+\(\mathcal{W}_\tau\).
 
-so
-
-\[
-E_\tau
-\left(
-R^{\mathrm{avoid}}_{\tau,i,j}(W)
-\right)
-\ne
-\varnothing.
-\]
-
-Thus removal does not create an empty represented-execution set.
-
-This argument is specific to removal of a selected `avoid` assumption in the
-supported profile. It is not a general rule that deleting arbitrary witness
-elements preserves validity.
+This is a derived validity-preservation result for valid sources. It is not a
+premise of the candidate-domain broadening theorem.
 
 ## Repeated Removal
 
@@ -387,6 +394,7 @@ Implementation tests must establish at least that:
 Unit tests establish implementation behavior. They do not by themselves prove
 the semantic inclusion theorem above.
 
+
 ## Exclusions
 
 This document does not classify the following operations:
@@ -404,9 +412,16 @@ This document does not classify the following operations:
 - segment merging; or
 - segment reordering.
 
-In particular, insertion of an `avoid` waypoint is not included here as a
-narrowing operator. A narrowing result requires an independent non-emptiness
-argument before it can be admitted to \(\mathcal{W}_\tau\).
+In particular, insertion of an `avoid` waypoint is not defined here as a
+narrowing operator.
+
+The candidate-domain algebra now permits a narrowing relation whose result has
+an empty represented-execution set, so result non-emptiness is no longer a
+reason to exclude such an operator from semantic study.
+
+However, avoid insertion would still require its own structural preconditions,
+semantic theorem, implementation, and transformation-local evidence before the
+project could classify concrete applications.
 
 ## References
 

@@ -2,18 +2,23 @@
 
 ## Purpose
 
-This document determines which validator-outcome constraints follow from the
-currently established witness semantics and transformation relations.
+This document states the semantic premises under which the project can derive
+relation-aware constraints over normalized validator claims.
 
-The purpose is to prevent operational observations from being assigned stronger
-semantic meaning than the current model supports.
+It separates:
 
-This document does not define a validator-specific result parser.
+- witness semantics;
+- transformation relations;
+- candidate and validity admission;
+- raw validator execution;
+- validator-specific result normalization; and
+- the generic metamorphic oracle.
 
-It also does not assume validator completeness, semantic extensionality, or
-monotonicity unless such a property is introduced separately and justified.
+The oracle does not assume validator completeness, semantic extensionality, or
+operational monotonicity unless a concrete experiment states and justifies such
+an additional contract.
 
-## Existing Semantic Premises
+## Semantic Universes
 
 For a fixed verification task
 
@@ -21,26 +26,45 @@ For a fixed verification task
 \tau = (P,\varphi,M),
 \]
 
-the current transformation algebra uses the witness universe
+the semantic profile defines the candidate universe
 
 \[
-\mathcal{W}_\tau.
+\mathcal{C}_\tau.
 \]
 
-Membership in this universe requires the witness to be valid for the fixed task
-and supported by the current semantic profile.
-
-In particular, for
+Every
 
 \[
-W \in \mathcal{W}_\tau,
+W \in \mathcal{C}_\tau
 \]
 
-the represented-execution set is non-empty:
+has a defined represented-execution set
 
 \[
-E_\tau(W) \ne \varnothing.
+E_\tau(W).
 \]
+
+That set may be empty.
+
+The valid-witness universe is
+
+\[
+\mathcal{W}_\tau
+=
+\left\{
+W \in \mathcal{C}_\tau
+\;\middle|\;
+E_\tau(W) \neq \varnothing
+\right\}.
+\]
+
+The transformation algebra is defined over
+\(\mathcal{C}_\tau\), not only over already-valid witnesses.
+
+This distinction is necessary for emptiness and non-emptiness claims to
+participate in a non-trivial pairwise oracle.
+
+## Current Transformation Relations
 
 The current transformation set contains:
 
@@ -50,42 +74,44 @@ The current transformation set contains:
 For an admitted exact application,
 
 \[
+W,W' \in \mathcal{C}_\tau
+\]
+
+and
+
+\[
 E_\tau(W') = E_\tau(W).
 \]
 
 For an admitted avoid-removal application,
 
 \[
-E_\tau(W) \subseteq E_\tau(W').
-\]
-
-The current transformation-specific validity arguments preserve result
-admission once source admission has been established independently.
-
-Consequently, for every currently admitted transformation application,
-
-\[
-E_\tau(W) \ne \varnothing
+W,W' \in \mathcal{C}_\tau
 \]
 
 and
 
 \[
-E_\tau(W') \ne \varnothing.
+E_\tau(W) \subseteq E_\tau(W').
 \]
 
-This fact exists before validator outcomes are considered.
+Neither relation requires the source denotation to be non-empty.
 
-## Outcome Information Must Be Separated from Process Observations
+If the source is additionally known to belong to
+\(\mathcal{W}_\tau\), exactness and broadening both preserve validity for the
+currently defined transformations.
 
-A raw validator run records only process behavior.
+That validity consequence is separate from the relation itself.
 
-Process exit, timeout, and spawn failure are not semantic witness claims.
+## Raw Runs Are Not Semantic Claims
 
-Any interpretation of a raw run therefore requires a separate
-validator-specific normalization rule.
+A raw validator run records process behavior.
 
-Such a rule must be justified from the validator's documented interface or
+Process exit, timeout, spawn failure, stdout, and stderr are not by themselves
+semantic witness claims.
+
+Any semantic interpretation of a raw run requires a validator-specific
+normalization rule justified from that validator's documented interface or
 another independently stated contract.
 
 The generic oracle must not derive a semantic claim directly from:
@@ -93,396 +119,283 @@ The generic oracle must not derive a semantic claim directly from:
 - process return code alone;
 - timeout;
 - spawn failure;
-- diagnostic output without a validator-specific interpretation rule; or
+- diagnostic output without a validator-specific interpretation rule;
+- unsupported input;
+- parse failure; or
 - absence of successful confirmation.
 
-## Candidate Semantic Claims
+## Semantic Claim Vocabulary
 
-Consider the following abstract claim vocabulary:
+The generic oracle uses three claim-strength classes.
 
 `NONEMPTY`
-: the normalized validator result asserts that the witness represents at least
-  one violating execution for the fixed task.
+: the normalized validator result asserts that the candidate represents at
+  least one violating execution for the fixed task.
 
 `EMPTY`
-: the normalized validator result asserts that the witness represents no
+: the normalized validator result asserts that the candidate represents no
   violating execution for the fixed task.
 
 `NO_CLAIM`
 : the normalized result establishes neither of the preceding semantic claims.
 
-These labels describe claim strength.
+These labels describe semantic claim strength.
 
 They do not define how any concrete validator output maps to the labels.
 
-## Admission Makes Non-Emptiness an Individual Fact
+A validator-specific adapter may emit `NONEMPTY` or `EMPTY` only when its
+independently justified contract supports that interpretation.
 
-For a currently admitted transformation application, both source and result
-already have non-empty represented-execution sets.
+Otherwise it must emit `NO_CLAIM`.
 
-Therefore an `EMPTY` claim about the source conflicts with source admission
-independently of the transformation relation.
+## Exact-Relation Constraint
 
-Likewise, an `EMPTY` claim about the transformed witness conflicts with result
-admission independently of whether the relation is exact or broadening.
-
-Thus a pair containing `EMPTY` does not become contradictory because of the
-relationship between the two witnesses.
-
-The individual admission facts are already sufficient.
-
-This distinction matters for a relation-aware oracle.
-
-A relation-aware constraint is non-trivial only when the relation rules out an
-outcome combination that the other stated premises do not already rule out.
-
-## Exactness with Non-Emptiness Claims
-
-Suppose an admitted application is exact:
+Suppose
 
 \[
 E_\tau(W) = E_\tau(W').
 \]
 
-Because admission already gives
+Then the following claim pairs are semantically compatible with the exact
+relation:
 
-\[
-E_\tau(W) \ne \varnothing
-\]
+| Source claim | Result claim | Relation classification |
+| --- | --- | --- |
+| `NONEMPTY` | `NONEMPTY` | compatible |
+| `EMPTY` | `EMPTY` | compatible |
 
-and
+The following claim pairs contradict equality of the represented-execution
+sets:
 
-\[
-E_\tau(W') \ne \varnothing,
-\]
+| Source claim | Result claim | Relation classification |
+| --- | --- | --- |
+| `NONEMPTY` | `EMPTY` | contradiction |
+| `EMPTY` | `NONEMPTY` | contradiction |
 
-the equality does not add a new non-emptiness fact.
+If either side is `NO_CLAIM`, the exact relation alone does not determine a
+contradiction.
 
-If both normalized results make `NONEMPTY` claims, they are compatible with
-the established semantics.
+The pair is therefore indeterminate under the current claim model.
 
-If one result makes an `EMPTY` claim, that claim already conflicts with the
-individual admission of the corresponding witness.
+This does not assume that a complete validator must emit the same operational
+result for semantically equivalent witness syntax.
 
-If either result is `NO_CLAIM`, exactness alone gives no rule requiring the
-validator to make a claim on the other witness.
+It constrains only explicit semantic claims that have already been normalized
+under a justified validator-specific contract.
 
-Therefore exactness does not currently provide a non-trivial pairwise
-constraint over the claim vocabulary
+## Broadening-Relation Constraint
 
-\[
-\{
-\text{NONEMPTY},
-\text{EMPTY},
-\text{NO\_CLAIM}
-\}
-\]
-
-once application admission is included among the premises.
-
-## Broadening with Non-Emptiness Claims
-
-Suppose an admitted application is broadening:
+Suppose
 
 \[
 E_\tau(W) \subseteq E_\tau(W').
 \]
 
-Source admission already gives
+The pair
+
+| Source claim | Result claim | Relation classification |
+| --- | --- | --- |
+| `NONEMPTY` | `EMPTY` | contradiction |
+
+is impossible if both semantic claims are sound.
+
+A non-empty subset cannot be contained in an empty set.
+
+The following combinations are compatible with the broadening relation:
+
+| Source claim | Result claim | Relation classification |
+| --- | --- | --- |
+| `NONEMPTY` | `NONEMPTY` | compatible |
+| `EMPTY` | `EMPTY` | compatible |
+| `EMPTY` | `NONEMPTY` | compatible |
+
+The last case is permitted because an empty source denotation is a subset of a
+non-empty result denotation.
+
+If either side is `NO_CLAIM`, inclusion alone does not require a claim on the
+other side.
+
+Such a pair is therefore indeterminate under the current claim model.
+
+## Why the Constraints Are Relation-Aware
+
+Candidate admission to
 
 \[
-E_\tau(W) \ne \varnothing.
+\mathcal{C}_\tau
 \]
 
-The broadening theorem therefore provides result non-emptiness:
+does not establish represented-execution non-emptiness.
 
-\[
-E_\tau(W') \ne \varnothing.
-\]
+Therefore neither an `EMPTY` nor a `NONEMPTY` claim is ruled out merely by
+candidate admission.
 
-For the currently defined transformation, this result is already part of the
-transformation-specific result-admission argument.
+For an exact application, the contradictory mixed pairs arise from semantic
+equality.
 
-Consequently an `EMPTY` claim for the transformed witness is inconsistent with
-the established application premises before a pairwise validator-outcome rule
-is considered.
-
-A source `EMPTY` claim is likewise inconsistent with source admission.
-
-If either result is `NO_CLAIM`, set inclusion alone does not require the
-validator to make a corresponding claim on the other run.
-
-Thus the current broadening relation also provides no additional pairwise
-constraint over this claim vocabulary for an admitted application.
-
-## Confirmation Is Not Completeness
-
-A validator may successfully confirm a valid violation witness.
-
-Failure to confirm the witness does not, without an additional contract, imply
-
-\[
-E_\tau(W) = \varnothing.
-\]
-
-A validator can fail to confirm a valid witness because of:
-
-- incomplete analysis;
-- unsupported features;
-- resource limits;
-- internal failure;
-- timeout; or
-- other implementation behavior.
-
-Therefore the operational abstraction
-
-`CONFIRMED`
-: the validator successfully established its supported confirmation condition.
-
-`NO_CONFIRMATION`
-: the run did not establish that confirmation condition.
-
-must not be identified with
-
-`NONEMPTY`
-and
-`EMPTY`
-
-respectively.
-
-At most, a validator-specific contract may establish that `CONFIRMED` entails
-a `NONEMPTY` claim.
-
-`NO_CONFIRMATION` remains semantically weaker unless the validator contract
-explicitly establishes otherwise.
-
-## Exactness Does Not Imply Equal Operational Results
-
-For an exact application,
-
-\[
-E_\tau(W) = E_\tau(W').
-\]
-
-This equality does not imply that an incomplete validator must behave
-identically on the two witness representations.
-
-Without an additional semantic-extensionality or completeness contract, each
-of the following operational pairs remains possible:
-
-    CONFIRMED / CONFIRMED
-    CONFIRMED / NO_CONFIRMATION
-    NO_CONFIRMATION / CONFIRMED
-    NO_CONFIRMATION / NO_CONFIRMATION
-
-The asymmetric cases may result from syntax sensitivity, unsupported features,
-resource behavior, internal heuristics, or incomplete analysis.
-
-Exactness alone therefore does not classify either asymmetric pair as a
-validator defect.
-
-## Broadening Does Not Imply Operational Monotonicity
-
-For a broadening application,
-
-\[
-E_\tau(W) \subseteq E_\tau(W').
-\]
-
-This inclusion does not imply that an incomplete validator that confirms the
-source must confirm the transformed witness.
-
-Such an implication would require an additional behavioral property of the
-validator.
-
-In particular, it would require some form of monotonicity or completeness with
-respect to the represented-execution relation.
-
-No such property is part of the current transformation algebra.
-
-Therefore the pair
-
-    CONFIRMED / NO_CONFIRMATION
-
-is not contradictory merely because the transformation is broadening.
-
-The reverse pair
-
-    NO_CONFIRMATION / CONFIRMED
-
-is also operationally possible.
-
-## Strict Broadening Does Not Resolve the Issue
-
-Knowing that
-
-\[
-E_\tau(W) \subset E_\tau(W')
-\]
-
-would establish that the transformed witness represents at least one execution
-not represented by the source.
-
-It would still not require an incomplete validator to confirm either witness.
-
-Strictness therefore does not by itself create a confirmation-level
-metamorphic constraint.
-
-A validator-behavior contract would still be required.
-
-## Current Constraint Result
-
-Under all of the following premises:
-
-1. transformation applications are admitted using the current
-   \(\mathcal{W}_\tau\) universe;
-2. source admission establishes source non-emptiness;
-3. the current transformations preserve result admission;
-4. validator incompleteness is permitted;
-5. semantic extensionality of validator behavior is not assumed;
-6. validator monotonicity is not assumed; and
-7. non-confirmation is not interpreted as a semantic emptiness proof;
-
-the current exact and broadening relations do not rule out any pair of
-`CONFIRMED` and `NO_CONFIRMATION` outcomes.
-
-Adding an `EMPTY` semantic claim does not by itself solve this problem because
-emptiness is already ruled out individually for both witnesses in an admitted
-application.
-
-This is a limitation of the current oracle premises, not a failure of the
-transformation theorems.
-
-## Consequence for Relation-Aware Testing
-
-The current semantic relations remain useful descriptions of related
-witnesses.
-
-However, semantic equality or inclusion alone is insufficient to derive a
-non-trivial operational oracle over confirmation and non-confirmation while
-validator incompleteness and representation-sensitive behavior remain
-permitted.
-
-A difference between validator outcomes therefore remains observational data
-unless additional justified premises provide a stronger interpretation.
-
-## Conditions That Could Produce a Non-Trivial Oracle
-
-A non-trivial relation-aware oracle would require at least one additional
-source of information not present in the current admitted-witness,
-confirmation-only model.
-
-Possible directions include the following.
-
-### Broader Semantic Domain
-
-The transformation relation could be established over a broader universe of
-profile-supported candidate witnesses that may have empty represented-execution
-sets.
-
-Such a redesign would separate:
-
-- structural/profile admissibility;
-- semantic equality or inclusion; and
-- witness validity as non-emptiness.
-
-The existing transformation theorems would need to be restated and re-proved
-over that broader universe.
-
-The current theorems must not simply be assumed to have this larger domain.
-
-### Stronger Validator Claims
-
-A concrete validator may expose a documented result that has semantic meaning
-stronger than failure to confirm.
-
-For example, a validator-specific result might, if its documented contract
-supports such an interpretation, assert that no execution represented by the
-witness establishes the violation.
-
-Such an interpretation must be justified separately for that validator and
-version.
-
-A generic `EMPTY` result must not be invented merely to make the oracle
-non-trivial.
-
-### Explicit Validator Behavioral Contract
-
-An experiment could state and test an additional validator property such as:
-
-- semantic extensionality over an exact transformation;
-- monotonicity over a broadening relation; or
-- completeness over a defined supported subdomain.
-
-Such a property would be an explicit contract under test.
-
-It would not follow from the witness semantics alone.
-
-The experimental conclusion would therefore concern conformance to that
-contract rather than an unconditional consequence of semantic equality or
+For a broadening application, the
+`NONEMPTY`-source / `EMPTY`-result contradiction arises from semantic
 inclusion.
 
-### Richer Semantic Outputs
+These are therefore non-trivial pairwise constraints under the definition in
+the research hypotheses: the relationship rules out combinations that the
+candidate-admission premises alone do not rule out.
 
-A validator may provide independently meaningful artifacts or claims beyond
-binary confirmation.
+## Relation Classification Is Not a Defect Verdict
 
-If such claims have documented semantics that interact with witness equality or
-inclusion, they may support stronger relation-aware constraints.
+A relation-level contradiction means that the two normalized semantic claims
+cannot both be sound under the independently established candidate admission
+and transformation theorem.
 
-This requires separate analysis of the concrete validator interface.
+It does not by itself identify which component is wrong.
+
+Possible causes include:
+
+- an unsound validator claim;
+- an incorrect validator-specific normalization rule;
+- incorrect candidate admission;
+- incorrect transformation-local evidence;
+- an implementation that does not realize the intended transformation; or
+- an error in the semantic theorem or its stated assumptions.
+
+The generic oracle therefore classifies consistency with the established
+relation.
+
+It does not directly label a validator implementation defective.
+
+## Validator Incompleteness Remains Permitted
+
+The candidate-domain redesign does not introduce a completeness assumption.
+
+A validator may still:
+
+- return an unknown result;
+- fail to confirm a valid witness;
+- reject unsupported input;
+- time out;
+- fail internally; or
+- expose no semantic claim usable by this oracle.
+
+Such cases remain `NO_CLAIM` unless a validator-specific contract establishes
+something stronger.
+
+For an exact relation, incompleteness may still yield operationally asymmetric
+runs.
+
+For a broadening relation, incompleteness may still prevent the validator from
+making a claim on either side.
+
+The oracle constrains claim content, not the validator's obligation to produce
+a claim.
+
+## Validity Consequences
+
+For a candidate
+
+\[
+W \in \mathcal{C}_\tau,
+\]
+
+a sound `NONEMPTY` claim is consistent with the non-emptiness condition required
+for
+
+\[
+W \in \mathcal{W}_\tau.
+\]
+
+A sound `EMPTY` claim establishes that the candidate does not satisfy the
+violation-sequence non-emptiness requirement and therefore cannot belong to
+\(\mathcal{W}_\tau\).
+
+The generic relation oracle does not need to perform this validity
+classification in order to compare a source/result pair.
+
+Validity and relation consistency remain separate conclusions.
 
 ## Outcome Normalization Requirement
 
 Validator-specific normalization must preserve distinctions that affect claim
 strength.
 
-In particular, a normalizer must not silently collapse:
+A normalizer must not silently collapse:
 
 - timeout;
 - unsupported input;
+- parse failure;
 - internal error;
 - process failure;
-- unrecognized output; and
-- unsuccessful confirmation
+- unrecognized output; or
+- generic non-confirmation
 
-into a semantic `EMPTY` claim.
+into `EMPTY`.
 
-A normalized result should expose only semantic information justified by the
-validator-specific contract.
+Likewise, a normalizer must not emit `NONEMPTY` merely because a process exited
+successfully.
 
-Operational information may be retained separately.
+Each semantic mapping requires an independently justified validator-specific
+contract.
 
-## Oracle Dependency Boundary
+## Generic Oracle Boundary
 
-A generic metamorphic oracle may depend on:
+The generic metamorphic oracle may depend on:
 
-- an independently established semantic relation;
-- normalized validator results whose claim strength is explicit; and
+- independent admission of the source and result to
+  \(\mathcal{C}_\tau\);
+- independently established transformation-local evidence;
+- the resulting exact or broadening semantic relation;
+- normalized semantic claims whose strength is explicit; and
 - any additional validator contract stated by the experiment.
 
 It must not depend directly on:
 
 - raw subprocess return codes;
 - validator-specific text parsing;
-- undocumented output conventions; or
-- assumptions introduced solely to force a non-indeterminate classification.
+- undocumented output conventions;
+- majority agreement between validators;
+- full re-verification used merely to infer the transformation relation; or
+- assumptions introduced solely to force a non-indeterminate result.
 
 Validator-specific adapters belong below the generic oracle.
 
 The raw validator runner remains below both layers.
 
+## Gate C
+
+Gate C is satisfied at the semantic-design level when the implementation can
+apply the predefined relation tables above to:
+
+1. an admitted candidate-domain transformation application; and
+2. two normalized semantic claims.
+
+For exact relations:
+
+- mixed `EMPTY` / `NONEMPTY` claims are contradictions;
+- equal informative claims are compatible; and
+- any pair containing `NO_CLAIM` is indeterminate.
+
+For broadening relations:
+
+- `NONEMPTY` source with `EMPTY` result is a contradiction;
+- the other informative combinations are compatible; and
+- any pair containing `NO_CLAIM` is indeterminate.
+
+A concrete validator adapter is still required before raw validator output can
+supply these semantic claims.
+
+The adapter contract must be justified separately for the concrete validator,
+validator version, witness-format version, and supported task profile.
+
 ## Research Interpretation
 
-The absence of a non-trivial constraint under the current premises is a valid
-research outcome.
+The candidate-domain correction does not guarantee that current validators
+expose sufficiently strong semantic claims.
 
-It does not show that relation-aware validator testing is impossible in
-general.
+It establishes only that the transformation relations themselves now admit a
+non-trivial semantic oracle when such claims are available.
 
-It shows only that the currently established relation classes, application
-admission rules, and confirmation-level outcome information are insufficient
-by themselves to produce a non-trivial pairwise oracle without adding further
-justified premises.
+If no concrete validator can justify an `EMPTY` or `NONEMPTY` mapping strong
+enough to exercise these constraints, that remains a valid negative empirical
+result.
 
-Any later oracle must state those premises explicitly.
+The project must not strengthen a validator result merely to make Gate C
+produce contradictions.

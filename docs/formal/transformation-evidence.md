@@ -26,34 +26,38 @@ The currently supported concrete transformations are defined in
 [`exact-transformations.md`](exact-transformations.md) and
 [`monotone-transformations.md`](monotone-transformations.md).
 
+
 ## Evidence Is Not Admission by Construction
 
 The internal `ViolationSequence` model establishes local structural invariants
 of the supported profile.
 
-Construction of that model does not establish that a witness is a valid
-SV-Witness 2.2 witness or that it belongs to the semantic witness universe
+Construction of that model does not establish that a witness candidate belongs
+to the semantic candidate universe
 
 \[
-\mathcal{W}_\tau.
+\mathcal{C}_\tau.
 \]
 
 Likewise, construction of a `VerificationTask` establishes only the local
-verification-task representation. It does not by itself prove that a witness
-is bound to that task or that the task belongs to the complete supported
-research profile.
+verification-task representation.
+
+It does not by itself prove that a witness is bound to that task or that the
+task and witness satisfy the complete candidate-domain requirements.
 
 Transformation evidence must therefore not infer
 
 \[
-W \in \mathcal{W}_\tau
+W \in \mathcal{C}_\tau
 \]
 
 merely from the presence of a `ViolationSequence` and a `VerificationTask`
 object.
 
-Membership of the source witness in \(\mathcal{W}_\tau\) is an independent
+Membership of the source witness in \(\mathcal{C}_\tau\) is an independent
 premise of application admission.
+
+It does not require the source to have a non-empty represented-execution set.
 
 ## Evidence Layers
 
@@ -61,24 +65,33 @@ The project distinguishes three kinds of facts.
 
 ### Source-Admission Facts
 
-Source-admission facts establish that the source witness belongs to
+Source-admission facts establish that the source belongs to
 
 \[
-\mathcal{W}_\tau.
+\mathcal{C}_\tau.
 \]
 
 They include the applicable requirements for:
 
-- SV-Witness 2.2 validity;
 - support by the project semantic profile;
 - binding to the fixed verification task;
-- validity of source locations and expressions; and
-- represented-execution non-emptiness.
+- the applicable SV-Witness 2.2 schema and guide conditions retained by the
+  candidate universe;
+- valid source locations and interpretable expressions as required by the
+  supported profile; and
+- every other candidate-domain condition except represented-execution
+  non-emptiness.
+
+Source admission therefore does not establish
+
+\[
+E_\tau(W) \neq \varnothing.
+\]
 
 The current local witness and task constructors do not establish this complete
-set of facts.
+set of candidate-admission facts.
 
-This document does not define a general source-witness admission algorithm.
+This document does not define a general source-candidate admission algorithm.
 
 ### Transformation-Local Facts
 
@@ -187,7 +200,7 @@ There is no additional operator-specific semantic precondition beyond the
 independent premise
 
 \[
-W \in \mathcal{W}_\tau.
+W \in \mathcal{C}_\tau.
 \]
 
 Once that premise and these local facts hold, the exactness theorem in
@@ -199,8 +212,9 @@ E_\tau(W')
 E_\tau(W).
 \]
 
-The theorem also establishes represented-execution non-emptiness of the result
-from source-witness non-emptiness.
+The equality theorem applies whether the source denotation is empty or non-empty.
+If the source is later established to belong to \(\mathcal{W}_\tau\),
+exactness also transfers represented-execution non-emptiness to the result.
 
 ## Implicit Main-Thread Evidence
 
@@ -220,7 +234,7 @@ There is no additional operator-specific semantic precondition beyond the
 independent premise
 
 \[
-W \in \mathcal{W}_\tau.
+W \in \mathcal{C}_\tau.
 \]
 
 The exactness theorem then gives
@@ -263,7 +277,7 @@ It must then establish the intended syntactic effect:
 Given the independent source-admission premise
 
 \[
-W \in \mathcal{W}_\tau,
+W \in \mathcal{C}_\tau,
 \]
 
 these local facts satisfy the preconditions of the broadening theorem from
@@ -279,45 +293,57 @@ E_\tau(W').
 
 It does not establish strict inclusion.
 
-## Result Admission
 
-Transformation-local evidence alone does not establish source-witness
-admission.
+## Candidate Result and Validity Consequence
 
-For the currently defined transformations, once source-witness admission is
-established independently, the transformation theorems also provide the
-transformation-specific argument needed for result admission.
+Transformation-local evidence alone does not establish source admission to
+\(\mathcal{C}_\tau\).
+
+For the currently defined transformations, once candidate source admission is
+established independently, the transformation theorems and local structural
+facts provide the transformation-specific argument needed to retain the result
+inside \(\mathcal{C}_\tau\).
 
 For the exact main-thread transformations:
 
 - required structural relationships are preserved;
-- the two supported main-thread representations have the same denotation; and
-- non-emptiness transfers by exactness.
+- the changed main-thread representations are both admitted by the profile;
+  and
+- their denotations are equal.
 
 For avoid removal:
 
 - the removed waypoint is optional in the supported segment structure;
 - all required `follow` and target waypoints are preserved; and
-- non-emptiness transfers by broadening.
+- the broadening theorem applies independently of source non-emptiness.
 
-These arguments are conditional on the source witness already belonging to
+These arguments establish candidate-domain preservation.
+
+They do not assume that either candidate is already valid.
+
+If the source is separately established to belong to
 
 \[
-\mathcal{W}_\tau.
+\mathcal{W}_\tau,
 \]
 
-They do not make local model construction a general witness-validity proof.
+then exactness or broadening transfers represented-execution non-emptiness to
+the result.
+
+That is a derived validity consequence, not a prerequisite for recording the
+semantic relation.
+
 
 ## Application Admission Criterion
 
-A concrete transformation application is admitted only when all of the
-following have been established:
+A concrete transformation application is admitted for relation reasoning only
+when all of the following have been established:
 
-1. the source witness belongs to \(\mathcal{W}_\tau\);
+1. the source witness belongs to \(\mathcal{C}_\tau\);
 2. the transformation-local preconditions hold;
 3. the candidate result realizes the syntactic transformation defined by the
    operator;
-4. the transformation-specific validity-preservation argument applies; and
+4. the transformation-specific candidate-preservation argument applies; and
 5. the operator's semantic theorem applies to the application.
 
 For an admitted application, the project may then record:
@@ -326,7 +352,22 @@ For an admitted application, the project may then record:
 - the established base relation; and
 - the transformation-local evidence used to instantiate the theorem.
 
-Failure to establish any required item leaves the application unadmitted.
+Admission of the relation application does not establish
+
+\[
+W \in \mathcal{W}_\tau
+\]
+
+or
+
+\[
+W' \in \mathcal{W}_\tau.
+\]
+
+Those validity facts require represented-execution non-emptiness.
+
+Failure to establish any required application-admission item leaves the
+relation application unadmitted.
 
 Failure to establish an item is not equivalent to proving that the
 corresponding mathematical property is false.
