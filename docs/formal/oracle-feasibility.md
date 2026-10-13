@@ -359,13 +359,17 @@ Validator-specific adapters belong below the generic oracle.
 
 The raw validator runner remains below both layers.
 
-## Gate C
+## Generic Classification Contract
 
-Gate C is satisfied at the semantic-design level when the implementation can
-apply the predefined relation tables above to:
+The generic classification contract applies after:
 
-1. an admitted candidate-domain transformation application; and
-2. two normalized semantic claims.
+1. a candidate-domain transformation application has been independently
+   admitted; and
+2. two semantic claims have been normalized under justified validator-specific
+   contracts.
+
+The classifier then applies the established base relation and the two normalized
+claims according to the relation tables above.
 
 For exact relations:
 
@@ -397,5 +401,5 @@ If no concrete validator can justify an `EMPTY` or `NONEMPTY` mapping strong
 enough to exercise these constraints, that remains a valid negative empirical
 result.
 
-The project must not strengthen a validator result merely to make Gate C
-produce contradictions.
+The project must not strengthen a validator result merely to produce
+contradictions.
