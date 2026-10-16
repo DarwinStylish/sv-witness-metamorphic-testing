@@ -140,7 +140,7 @@ A validator cannot consume only the internal Python model.
 A concrete validation case requires bytes representing the verification task
 and the two related witnesses.
 
-PR12 therefore defines a narrow deterministic materialization boundary.
+The corpus layer therefore defines a narrow deterministic materialization boundary.
 
 This boundary is intentionally smaller than a general SV-Witness serializer.
 
@@ -250,9 +250,9 @@ That distinction is necessary for the exact main-thread transformations.
 
 ## Deterministic YAML Emission
 
-PR12 does not add a general-purpose YAML parser.
+The corpus layer does not add a general-purpose YAML parser.
 
-PR12 also does not expose a general-purpose SV-Witness serializer.
+The corpus layer also does not expose a general-purpose SV-Witness serializer.
 
 The corpus materializer uses a deterministic emitter for the exact supported
 corpus model.
@@ -358,7 +358,7 @@ A reduced case does not silently replace its corpus source case.
 
 ## Relationship to Validator Execution
 
-PR12 does not import the raw validator runner.
+The corpus layer does not import the raw validator runner.
 
 It does not define validator command lines.
 
@@ -379,7 +379,7 @@ The corpus contains no `SemanticClaim` values.
 The candidate universe permits a witness denotation to be empty, but the
 current project has no general decision procedure that determines emptiness.
 
-PR12 therefore does not label cases `EMPTY` or `NONEMPTY` merely from witness
+The corpus therefore does not label cases `EMPTY` or `NONEMPTY` merely from witness
 syntax or construction.
 
 A later validator-specific adapter may produce a semantic claim only under its
@@ -405,7 +405,7 @@ Likewise, corpus membership does not make those claims.
 
 ## No General Parsing Layer
 
-PR12 does not parse arbitrary external SV-Witness YAML.
+The corpus layer does not parse arbitrary external SV-Witness YAML.
 
 There is no YAML-to-model ingestion path in this corpus contract.
 
@@ -430,7 +430,7 @@ A reproducible corpus evaluation can record:
 - validator-specific normalized claims, when justified; and
 - generic oracle classification, when its prerequisites are met.
 
-Only the first three belong to PR12.
+Only the first three belong to the corpus definition.
 
 The remaining fields belong to later evaluation infrastructure.
 
@@ -444,9 +444,9 @@ transformation, witness reduction, or validator comparison are new.
 Its role in this project is to provide deterministic relation-bearing inputs for
 the already-defined metamorphic testing structure.
 
-## Non-Claims
+## Limitations
 
-The PR12 corpus does not claim to provide:
+The corpus does not claim to provide:
 
 - a general SV-Witness parser;
 - a general SV-Witness serializer;
